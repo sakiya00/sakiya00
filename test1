@@ -1,45 +1,36 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
+API_TOKEN = "6361952431:AAEsP860D7bqJPHXOuog_cPGJf6YyS0b4-I"
+
+updater = Updater(API_TOKEN, use_context=True)
+
 def start(update: Update, context: CallbackContext) -> None:
     user_name = update.message.from_user.first_name
-    welcome_message = f" Benvenuto {user_name}!per entrare nel gruppo dovrai rispondere a questa domanda e per rispondere a questa domanda usa il comando /getlink."
-
+    welcome_message = f"Benvenuto {user_name}! Per entrare nel gruppo dovrai rispondere a questa domanda e per rispondere a questa domanda usa il comando /getlink."
     update.message.reply_text(welcome_message)
 
 def get_link(update: Update, context: CallbackContext) -> None:
     user_id = update.message.from_user.id
-    captcha_question = "quanto fa 2 mele + 2 mele?"
-
+    captcha_question = "Quanto fa 2 mele + 2 mele?"
     context.user_data[user_id] = 4  
     update.message.reply_text(captcha_question)
-
-
-def handle_captcha_response(update: Update, context: CallbackContext) -> None:
-    user_id = update.message.from_user.id
-
-    if "4" in update.message.text:
-        update.message.reply_text("Ecco il link del gruppo: [XxmodxX gamers] (https://t.me/+4u9S0yEd7zs5MzFk)")
-    else:
-
-        update.message.reply_text("Risposta errata. Riprova.")
 
 def handle_messages(update: Update, context: CallbackContext) -> None:
     user_id = update.message.from_user.id
     ban_phrase = "scrivimi ti ho aggiunto"
 
-
     if ban_phrase in update.message.text.lower():
-
         context.bot.kick_chat_member(chat_id=update.message.chat_id, user_id=user_id)
         update.message.reply_text("Sei stato bannato per aver inviato un messaggio vietato.")
     else:
-
-updater = Updater("6361952431:AAEsP860D7bqJPHXOuog_cPGJf6YyS0b4-I", use_context=True)
+        if "4" in update.message.text:
+            update.message.reply_text("Ecco il link del gruppo: [XxmodxX gamers](https://t.me/+4u9S0yEd7zs5MzFk)")
+        else:
+            update.message.reply_text("Risposta errata. Riprova.")
 
 updater.dispatcher.add_handler(CommandHandler("start", start))
 updater.dispatcher.add_handler(CommandHandler("getlink", get_link))
-updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_captcha_response))
 updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
 
 updater.start_polling()
